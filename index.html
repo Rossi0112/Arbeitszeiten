@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0e78db">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arbeitszeiten">
+<title>Arbeitszeiten</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f5f6f8;--card:#fff;--tx:#1a1d23;--mu:#6b7280;--bd:#e2e5ea;--el:#2563eb;--fw:#e8590c;--danger:#c92a2a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14161a;--card:#1f2228;--tx:#eceef2;--mu:#9aa1ad;--bd:#33373f;--el:#5b8def;--fw:#ff8a45;--danger:#ff6b6b}}
+:root[data-theme="dark"]{--bg:#14161a;--card:#1f2228;--tx:#eceef2;--mu:#9aa1ad;--bd:#33373f;--el:#5b8def;--fw:#ff8a45;--danger:#ff6b6b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
+input,textarea,select{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.types{display:flex;gap:8px;flex-wrap:wrap}
+.types button{flex:1 1 auto;padding:12px;border-radius:10px;border:2px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-weight:600;cursor:pointer}
+.types button.on[data-t="Elektroarbeit"]{border-color:var(--el);color:var(--el)}
+.types button.on[data-t="Feuerwerk"]{border-color:var(--fw);color:var(--fw)}
+.types button.on[data-t="Erste Hilfe"]{border-color:#2f9e44;color:#2f9e44}
+.save{width:100%;margin-top:14px;padding:13px;border:0;border-radius:10px;background:var(--tx);color:var(--bg);font:inherit;font-weight:700;cursor:pointer}
+.sum{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.sum div{flex:1 1 40%;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.sum em{display:block;font-style:normal;font-weight:700;margin-top:2px;font-size:14px}
+.sum b{display:block;font-size:22px}.sum span{font-size:12px;color:var(--mu)}
+.entry{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--bd)}
+.entry:first-child{border-top:0}
+.tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;color:#fff}
+.tag.Elektroarbeit{background:var(--el)}.tag.Feuerwerk{background:var(--fw)}.tag.Erste{background:#2f9e44}
+.note{color:var(--mu);font-size:13px}
+.x{background:none;border:1px solid var(--danger);border-radius:8px;padding:4px 8px;color:var(--danger);font:inherit;font-size:13px;cursor:pointer}
+.tools{display:flex;gap:8px;margin-top:10px}
+.tools button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;cursor:pointer}
+.iv,.ed{background:none;border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:4px 8px;font:inherit;font-size:13px;cursor:pointer}
+details.card summary{cursor:pointer}
+#ov[hidden]{display:none}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;overflow:auto;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.ovin{max-width:560px;margin:0 auto;background:var(--bg);padding:16px;min-height:100%}
+.ovh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ovh button{padding:8px 12px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;cursor:pointer}
+#sheet{background:#fff;color:#000;border:1px solid var(--bd);border-radius:8px;padding:18px;margin:14px 0;font-size:13px;line-height:1.45}
+#sheet p{margin:0 0 12px}#sheet table{width:100%;border-collapse:collapse}#sheet td{padding:3px 0}#sheet td:last-child{text-align:right;white-space:nowrap}
+@media print{body *{visibility:hidden}#sheet,#sheet *{visibility:visible}#ov{position:static;background:none;overflow:visible}#sheet{position:absolute;left:0;top:0;width:100%;border:0}}
+#sheet{font-family:Verdana,Tahoma,"DejaVu Sans",sans-serif;font-size:12px;line-height:1.4;display:flex;flex-direction:column;min-height:560px}
+#sheet .sh-h{text-align:center;color:#1f3f8f;margin-bottom:28px}#sheet .sh-h b{font-size:20px;display:block;margin-bottom:10px}
+#sheet .sh-to{margin-bottom:22px;font-size:14px}
+#sheet .sh-d{text-align:right;margin-bottom:22px;font-size:14px}
+#sheet .sh-n{margin-bottom:14px;font-size:14px}
+#sheet .sh-t{width:100%;border-collapse:collapse;margin-bottom:12px}
+#sheet .sh-t td{border:1px solid #c4c4c4;padding:4px 8px;height:24px}
+#sheet .sh-t td:last-child{text-align:right;white-space:nowrap;width:1%}
+#sheet .sh-g td{background:#e9eef6;color:#1f3f8f;font-weight:700}
+#sheet .sh-note{font-size:11px}
+#sheet .sh-ft{margin-top:auto;padding-top:40px;text-align:center;color:#1f3f8f;font-size:12px}
+@media print{@page{size:A4;margin:15mm}#sheet{min-height:262mm;font-size:11pt;padding:0}#sheet .sh-h b{font-size:20pt}#sheet .sh-to,#sheet .sh-d,#sheet .sh-n{font-size:12pt}#sheet .sh-note{font-size:9.5pt}#sheet .sh-ft{font-size:11pt}}
+#sheet .sh-x p{margin:0;font-size:14px}#sheet .sh-sp{height:16px}#sheet .sh-x .sh-b{text-align:center;font-size:16px;margin:18px 0}
+@media print{#sheet .sh-x p{font-size:12pt}#sheet .sh-x .sh-b{font-size:13pt}}
+@page{size:A4;margin:0}
+@media print{
+html,body{height:auto!important;background:#fff!important;margin:0!important;padding:0!important}
+:root{padding:0!important}
+main{display:none!important}
+.ovin>*:not(#sheet){display:none!important}
+body *{visibility:visible}
+#ov{position:static!important;overflow:visible!important;padding:0!important;background:none!important}
+.ovin{padding:0!important;margin:0!important;min-height:0!important;max-width:none!important;background:none!important}
+#sheet{position:static!important;width:100%!important;margin:0!important;border:0!important;border-radius:0!important;padding:15mm 18mm!important;min-height:290mm!important;box-sizing:border-box}
+}
+#sheet.eh .sh-to{margin-bottom:46px}#sheet.eh .sh-d{margin-bottom:46px}#sheet.eh .sh-sp{height:28px}
+#sheet .sh-x .sh-s{font-size:11px}
+@media print{#sheet .sh-x .sh-s{font-size:9.5pt}}
+#sheet:not(.eh) .sh-n{margin-bottom:34px}
+#sheet .sh-t{margin-bottom:28px}
+#sheet .sh-note{font-size:9.5px}
+@media print{#sheet .sh-note{font-size:8pt}}
+.tag.Heißausbildung{background:#c2255c}.types button.on[data-t="Heißausbildung"]{border-color:#c2255c;color:#c2255c}
+#sheet .sh-t2{width:100%;border-collapse:collapse;table-layout:fixed;margin:14px 0 28px}
+#sheet .sh-t2 td{border:1px solid #333;padding:4px 8px;font-size:13px;word-wrap:break-word}
+#sheet .sh-t2 tr:first-child td:nth-child(1){width:9%}#sheet .sh-t2 tr:first-child td:nth-child(3){width:21%}#sheet .sh-t2 tr:first-child td:nth-child(4),#sheet .sh-t2 tr:first-child td:nth-child(5){width:19%}
+#sheet .sh-t2 tr.tg td{font-weight:700}
+@media print{#sheet .sh-t2 td{font-size:10.5pt}}
+#sheet .sh-to{margin-bottom:44px}#sheet.eh .sh-to{margin-bottom:68px}
+</style>
+</head>
+<body>
+<main>
+<h1>⏱️ Arbeitszeiten</h1>
+
+<div class="card">
+  <div class="types" id="types">
+    <button data-t="Elektroarbeit" class="on">⚡ Elektroarbeit</button>
+    <button data-t="Feuerwerk">🎆 Feuerwerk</button>
+    <button data-t="Erste Hilfe">🩹 Erste Hilfe</button>
+    <button data-t="Heißausbildung">🔥 Heißausbildung</button>
+  </div>
+  <label for="date">Datum</label>
+  <input type="date" id="date">
+  <div class="row">
+    <div><label for="from">Von</label><input type="time" id="from" value="08:00"></div>
+    <div><label for="to">Bis</label><input type="time" id="to" value="16:00"></div>
+    
+  </div>
+  <label for="note">Notiz (Baustelle, Kunde, Event …)</label>
+  <input type="text" id="note" placeholder="optional">
+  <button class="save" id="save">Eintragen</button>
+  <button class="iv" id="cancel" hidden style="width:100%;margin-top:8px;padding:10px">Abbrechen</button>
+</div>
+
+<div class="sum">
+  <div><b id="sEl">0:00</b><span>⚡ Elektro (Monat)</span><em id="cEl"></em></div>
+  <div><b id="sFw">0:00</b><span>🎆 Feuerwerk (Monat)</span><em id="cFw"></em></div>
+  <div><b id="sEh">0:00</b><span>🩹 Erste Hilfe (Monat)</span><em id="cEh"></em></div>
+  <div><b id="sHe">0:00</b><span>🔥 Heißausbildung (Monat)</span><em id="cHe"></em></div>
+</div>
+
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:18px;margin-bottom:10px"><span>Gesamt (Monat)</span><b id="tot">0,00 €</b></div>
+  <label for="month" style="margin-top:0">Monat</label>
+  <input type="month" id="month">
+  <button class="save" id="selInv" style="margin:8px 0 0">🧾 Rechnung aus Auswahl</button><div id="list" style="margin-top:8px"></div>
+  <div class="tools"><button id="copy">CSV kopieren</button></div>
+</div>
+<details class="card"><summary><b>Meine Angaben (für Rechnungen)</b></summary><div id="setf"></div></details>
+<details class="card"><summary><b>Kunden</b></summary>
+  <label>Name</label><input id="cName">
+  <label>Adresse</label><textarea id="cAdr" rows="2"></textarea>
+  <button class="save" id="cSave">Kunde speichern</button>
+  <button class="iv" id="cCancel" hidden style="width:100%;margin-top:8px;padding:10px">Abbrechen</button>
+  <div id="cList" style="margin-top:10px"></div></details>
+</main>
+<div id="ov" hidden><div class="ovin">
+<div class="ovh"><b>Rechnung erstellen</b><button id="ovx">Schließen</button></div>
+<div id="iFix" class="note" style="display:none;margin:10px 0"></div>
+<div id="iCw">
+<label>Kunde auswählen</label><select id="iSel"></select>
+<label>Empfänger (Name)</label><input id="iName">
+<label>Empfänger (Adresse)</label><textarea id="iAdr" rows="2"></textarea>
+<button class="iv" id="iSaveC" style="margin-top:8px">Empfänger als Kunde speichern</button>
+</div>
+<div class="row"><div><label>Rechnungs-Nr.</label><input id="iNo"></div><div><label>Datum</label><input type="date" id="iDate"></div></div>
+<div id="iDw"><label>Beschreibung</label><input id="iDesc"></div>
+<div class="row"><div><label>Anfahrt (€)</label><input id="iAnf" inputmode="decimal"></div><div><label>Material (€)</label><input id="iMat" inputmode="decimal"></div></div>
+<div id="iMw"><label>Bezeichnung Material (optional)</label><input id="iMatT" placeholder="Material"></div>
+<div id="iZw" style="display:none"><label>Zeitraum (leer = aus den Einträgen)</label><input id="iZ"></div>
+<div id="iHw" style="display:none">
+<div class="row"><div><label>km pro Tag</label><input id="iKm" inputmode="decimal"></div><div><label>Tage (leer = aus Einträgen)</label><input id="iTg" inputmode="numeric"></div></div>
+<label>Anzahl Verpflegungspauschalen (leer = Tage, 0 = keine)</label><input id="iVp" inputmode="numeric">
+</div>
+<div id="sheet"></div>
+<div class="tools"><button id="ovp">Drucken / PDF</button><button id="ovc">Text kopieren</button></div>
+</div></div>
+
+<script>
+(function(){
+  var KEY="arbeitszeiten-v1", type="Elektroarbeit", data=[], editId=null;
+  var RATES={"Elektroarbeit":0,"Erste Hilfe":0,"Feuerwerk":0,"Heißausbildung":0};
+  function euro(x){return x.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"}
+  function eur(m,t){return euro(m/60*(RATES[t]||0))}
+  var $=function(i){return document.getElementById(i)};
+  function load(){try{data=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){data=[]}}
+  function store(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}}
+  function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+  function mins(e){var a=e.from.split(":"),b=e.to.split(":");var m=(+b[0]*60+ +b[1])-(+a[0]*60+ +a[1]);if(m<0)m+=1440;return Math.max(0,m)}
+  function fmt(m){return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+  function dd(s){var p=s.split("-");return p[2]+"."+p[1]+"."+p[0]}
+  function render(){
+    var mo=$("month").value, el=0, fw=0, eh=0, he=0, h="";
+    var rows=data.filter(function(e){return e.date.indexOf(mo)===0}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:(a.from<b.from?1:-1)});
+    rows.forEach(function(e){var m=mins(e);if(e.type==="Feuerwerk")fw+=m;else if(e.type==="Erste Hilfe")eh+=m;else if(e.type==="Heißausbildung")he+=m;else el+=m;
+      h+='<div class="entry"><div><input type="checkbox" class="sel" data-id="'+e.id+'"'+(selIds[e.id]?' checked':'')+' style="width:auto;margin:0 6px 0 0"> <span class="tag '+e.type+'">'+e.type+'</span> <b>'+dd(e.date)+'</b><div class="note">'+e.from+'–'+e.to+(e.note?' · '+esc(e.note):'')+'</div></div><div style="text-align:right"><b>'+fmt(m)+' h</b><div class="note">'+eur(m,e.type)+'</div><button class="ed" data-id="'+e.id+'">✏️ Bearbeiten</button> <button class="iv" data-id="'+e.id+'">🧾 Rechnung</button> <button class="x" data-id="'+e.id+'" aria-label="Löschen">🗑️ Löschen</button></div></div>'});
+    $("list").innerHTML=h||'<div class="note">Keine Einträge in diesem Monat.</div>';
+    $("sEl").textContent=fmt(el);$("sFw").textContent=fmt(fw);$("sEh").textContent=fmt(eh);$("sHe").textContent=fmt(he);
+    $("cEl").textContent=eur(el,"Elektroarbeit");$("cFw").textContent=eur(fw,"Feuerwerk");$("cEh").textContent=eur(eh,"Erste Hilfe");$("cHe").textContent=eur(he,"Heißausbildung");
+    $("tot").textContent=euro(el/60*RATES["Elektroarbeit"]+fw/60*RATES["Feuerwerk"]+eh/60*RATES["Erste Hilfe"]+he/60*RATES["Heißausbildung"]);
+  }
+  $("types").addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;type=b.dataset.t;
+    Array.prototype.forEach.call($("types").children,function(x){x.classList.toggle("on",x===b)})});
+  $("save").addEventListener("click",function(){
+    var e={id:Date.now()+"",type:type,date:$("date").value,from:$("from").value,to:$("to").value,pause:0,note:$("note").value.trim()};
+    if(!e.date||!e.from||!e.to){return}
+    if(editId){e.id=editId;data=data.map(function(x){return x.id===editId?e:x})}else data.push(e);editId=null;$("save").textContent="Eintragen";$("cancel").hidden=true;store();$("note").value="";$("month").value=e.date.slice(0,7);render();
+  });
+  $("list").addEventListener("click",function(ev){var b=ev.target.closest(".x");if(!b)return;
+    if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="Wirklich löschen?";setTimeout(function(){if(b.isConnected){b.dataset.arm="";b.textContent="🗑️ Löschen"}},3000);return}
+    data=data.filter(function(e){return e.id!==b.dataset.id});store();render()});
+  $("month").addEventListener("change",render);
+  $("copy").addEventListener("click",function(){
+    var mo=$("month").value,csv="Datum;Art;Von;Bis;Stunden;Kosten;Notiz\n";
+    data.filter(function(e){return e.date.indexOf(mo)===0}).sort(function(a,b){return a.date<b.date?-1:1}).forEach(function(e){
+      csv+=[dd(e.date),e.type,e.from,e.to,fmt(mins(e)),eur(mins(e),e.type),(e.note||"").replace(/;/g,",")].join(";")+"\n"});
+    var ok=function(){$("copy").textContent="Kopiert ✓";setTimeout(function(){$("copy").textContent="CSV kopieren"},1500)};
+    try{navigator.clipboard.writeText(csv).then(ok)}catch(e){}
+  });
+  var SK="az-settings",cur=null,curs=[],selIds={},txt="",S={name:"",adr:"",tel:"",mail:"",bank:"",iban:"",bic:"",stnr:"",note:"Zahlbar ohne Abzug innerhalb von 10 Tagen ab Rechnungsdatum.\nAls Kleinunternehmer bin ich gemäß §19 Abs. 1 UStG von der Ausweisung einer Umsatzsteuer befreit.\nDiese Rechnung wurde maschinell erstellt und ist ohne Unterschrift gültig.",noteEh:"",ehText:"Rechnung für Ausbildungstätigkeit\n\nSehr geehrte Damen und Herren,\n\nfür meine Ausbildungstätigkeiten im Zeitraum vom {zeitraum} erlaube ich mir insgesamt {betrag} zu berechnen!\n\n~Bitte überweisen Sie den Betrag auf das unten angegebene Konto.",ehName:"FINEH",ehAdr:"Fachinstitut für Notfallmedizin u. Erste Hilfe\nTalstraße 1\n82544 Egling Deining",rEl:"",rFw:"",rEh:"",rHe:"",rKm:"",rVp:"",heName:"FeuReX QWT GmbH",heAdr:"Burgwaldring 4\n86697 Oberhausen",heText:"Hiermit stelle ich Ihnen für Heißausbildertätigkeiten folgendes in Rechnung:",heNote:"Gemäß § 19 Abs. 1 UStG wird keine Umsatzsteuer ausgewiesen.",last:0};
+  try{var tmp=JSON.parse(localStorage.getItem(SK)||"{}");for(var k in tmp)S[k]=tmp[k]}catch(e){}
+  S.ehText=S.ehText.split("insgesamt\n\n{betrag}\n\nzu berechnen!").join("insgesamt {betrag} zu berechnen!");
+  S.ehText=S.ehText.split("\n\nBitte überweisen Sie den Betrag auf das unten angegebene Konto.").join("\n\n~Bitte überweisen Sie den Betrag auf das unten angegebene Konto.");
+  if(/^Zahlbar ohne Abzug innerhalb von (10|14) Tagen ab Rechnungsdatum\.\nDiese Rechnung wurde maschinell erstellt und ist ohne Unterschrift gültig\.$/.test(S.noteEh))S.noteEh="";
+  function applyRates(){RATES.Elektroarbeit=num(S.rEl);RATES.Feuerwerk=num(S.rFw);RATES["Erste Hilfe"]=num(S.rEh);RATES["Heißausbildung"]=num(S.rHe)}applyRates();
+  function saveS(){try{localStorage.setItem(SK,JSON.stringify(S))}catch(e){}}
+  var F=[["name","Name"],["adr","Adresse (Straße, PLZ Ort)",1],["tel","Telefon"],["mail","E-Mail"],["bank","Bank"],["iban","IBAN"],["bic","BIC"],["stnr","Steuernummer"],["note","Hinweise Elektro / Feuerwerk (Kleingewerbe)",1],["rEl","Stundensatz Elektro (€)"],["rFw","Stundensatz Feuerwerk (€)"],["rEh","Stundensatz Erste Hilfe (€)"],["rHe","Stundensatz Heißausbildung (€)"],["rKm","Reisekosten Heißausbildung (€ pro km)"],["rVp","Verpflegungspauschale Heißausbildung (€)"],["heName","Fester Kunde Heißausbildung (Name)"],["heAdr","Fester Kunde Heißausbildung (Adresse)",1],["heText","Text über der Tabelle (Heißausbildung)",1],["heNote","Text unter der Tabelle (Heißausbildung; ~ am Zeilenanfang = kleine Schrift)",1],["ehName","Fester Kunde Erste Hilfe (Name)"],["ehAdr","Fester Kunde Erste Hilfe (Adresse)",1],["ehText","Text Erste-Hilfe-Rechnung ({zeitraum} und {betrag} werden eingesetzt; Zeile mit ~ am Anfang = kleine Schrift)",1],["noteEh","Hinweise unter der Erste-Hilfe-Rechnung (optional)",1]];
+  $("setf").innerHTML=F.map(function(f){return '<label>'+f[1]+'</label>'+(f[2]?'<textarea rows="3" data-k="'+f[0]+'"></textarea>':'<input data-k="'+f[0]+'">')}).join("");
+  Array.prototype.forEach.call($("setf").querySelectorAll("[data-k]"),function(i){i.value=S[i.dataset.k];i.addEventListener("input",function(){S[i.dataset.k]=i.value;saveS();applyRates();render()})});
+  var LBL={"Elektroarbeit":"Arbeitszeit Elektro","Erste Hilfe":"Ausbildervergütung","Feuerwerk":"Arbeitszeit Feuerwerk"};
+  var SUBJ={"Elektroarbeit":"Elektroarbeiten","Erste Hilfe":"Ausbildervergütung Erste Hilfe","Feuerwerk":"Feuerwerksarbeiten"};
+  function num(v){return parseFloat(String(v).replace(",","."))||0}
+  function br(s){return esc(s).replace(/\n/g,"<br>")}
+  function amt(x){return Math.abs(x-Math.round(x))<0.005?String(Math.round(x))+",- €":euro(x)}
+  function amtE(x){return Math.abs(x-Math.round(x))<0.005?Math.round(x)+".-Euro":euro(x).replace(" €"," Euro")}
+  function dsh(s){var p=s.split("-");return p[2]+"."+p[1]+"."+p[0].slice(2)}
+  function eT(x){return "€ "+(Math.abs(x-Math.round(x))<0.005?Math.round(x)+",--":x.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}))}
+  function paras(t){return '<div class="sh-x">'+t.split("\n").map(function(l){var sm=l.charAt(0)==="~";if(sm)l=l.slice(1);return l?'<p'+(sm?' class="sh-s"':'')+'>'+esc(l)+'</p>':'<div class="sh-sp"></div>'}).join("")+'</div>'}
+  function fmtAdr(t){var l=t.split("\n").map(function(x){return x.trim()}).filter(Boolean);
+    if(l.length===1){var m=l[0].match(/^(.*?),?\s*(\d{5}\s+[^,]+)$/);if(m&&m[1].trim())l=[m[1].trim(),m[2].trim()]}
+    return l.length>1?l.slice(0,-1).join("\n")+"\n\n"+l[l.length-1]:l.join("\n")}
+  function sheet(){
+    if(!cur)return;
+    var eh=cur.type==="Erste Hilfe",he=cur.type==="Heißausbildung",sp=eh||he;
+    var anf=sp?0:num($("iAnf").value),mat=sp?0:num($("iMat").value),work=0,rows=[],groups={},order=[];
+    var desc0=$("iDesc").value;
+    curs.slice().sort(function(a,b){return a.date<b.date?-1:1}).forEach(function(e){
+      var d0=desc0||e.note||"",key=d0+"|"+e.type;
+      if(!groups[key]){groups[key]={d:d0,t:e.type,h:0};order.push(key)}
+      groups[key].h+=mins(e)/60});
+    order.forEach(function(k){var g=groups[k],r=RATES[g.t]||0,v=g.h*r;work+=v;
+      var hs=g.h.toLocaleString("de-DE",{maximumFractionDigits:2});
+      rows.push([(g.d?g.d+", ":"")+"Arbeitszeit "+hs+"h a "+String(r).replace(".",",")+"€/h",v])});
+    if(anf)rows.push(["Anfahrt",anf]);
+    if(mat)rows.push([$("iMatT").value||"Material",mat]);
+    var sum=anf+work+mat;
+    var ap=S.adr.split("\n").map(function(x){return x.trim()}).filter(Boolean);
+    var l1=ap.join(", "),l2=[S.tel,S.mail].filter(Boolean).join(", ");
+    var cm=l1.match(/\b\d{5}\s+([^,]+)\s*$/),city=cm?cm[1].trim():(ap[ap.length-1]||"").split(",").pop().trim().replace(/^\d+\s*/,"");
+    var al=S.ehAdr.split("\n").map(function(x){return x.trim()}).filter(Boolean),ea=al.length>1?al.slice(0,-1).join("\n")+"\n\n"+al[al.length-1]:al.join("\n");
+    var to=sp?[eh?S.ehName:S.heName,fmtAdr(eh?S.ehAdr:S.heAdr)].filter(Boolean):[$("iName").value,fmtAdr($("iAdr").value)].filter(Boolean);
+    $("iFix").textContent=sp?"Kunde (fest): "+(eh?S.ehName:S.heName):"";
+    $("iAnf").parentNode.parentNode.style.display=sp?"none":"";$("iMw").style.display=sp?"none":"";$("iDw").style.display=sp?"none":"";$("iCw").style.display=sp?"none":"";$("iFix").style.display=sp?"":"none";$("iZw").style.display=eh?"":"none";$("iHw").style.display=he?"":"none";
+    var ft=[S.name,S.iban,S.bic,S.bank,S.stnr&&"Steuernummer: "+S.stnr].filter(Boolean);
+    var d=$("iDate").value?dd($("iDate").value):"",no=$("iNo").value,nt=eh?S.noteEh:S.note;
+    var mid,midTxt;
+    if(he){
+      var ents=curs.slice().sort(function(a,b){return a.date<b.date?-1:1}),dsx={},nd=0,hr=RATES["Heißausbildung"]||0,pos=0,tot=0,trs=[],tx=[];
+      ents.forEach(function(e){if(!dsx[e.date]){dsx[e.date]=1;nd++}});
+      var addRow=function(a,b,c,d,e2){trs.push('<tr><td>'+esc(String(a))+'</td><td>'+esc(b)+'</td><td>'+esc(c)+'</td><td>'+esc(d)+'</td><td>'+esc(e2)+'</td></tr>');tx.push(a+". "+b+" | "+c+" | "+d+" | "+e2)};
+      ents.forEach(function(e){var h=mins(e)/60,v=h*hr;tot+=v;pos++;addRow(pos,dd(e.date),h.toLocaleString("de-DE",{maximumFractionDigits:2})+" Std.",eT(hr),eT(v))});
+      var km=num($("iKm").value),tg=$("iTg").value.trim()===""?nd:num($("iTg").value),kr=num(S.rKm);
+      $("iTg").placeholder=String(nd);
+      if(km>0&&tg>0){var v2=km*tg*kr;tot+=v2;pos++;addRow(pos,"Reisekosten",km.toLocaleString("de-DE",{maximumFractionDigits:2})+" km x "+tg+(tg===1?" Tag":" Tage"),eT(kr),eT(v2))}
+      var vp=$("iVp").value.trim()===""?tg:num($("iVp").value),vr=num(S.rVp);
+      $("iVp").placeholder=String(tg);
+      if(vp>0&&vr>0){tot+=vp*vr;pos++;addRow(pos,"Verpflegungspauschale",String(vp),eT(vr),eT(vp*vr))}
+      sum=tot;nt="";
+      mid=paras(S.heText)+'<table class="sh-t2"><tr class="th"><td>Pos.</td><td>Bezeichnung / Datum</td><td>Menge</td><td>Einzelpreis</td><td>Gesamtpreis</td></tr>'+trs.join("")+'<tr class="tg"><td></td><td></td><td></td><td>Gesamt</td><td>'+esc(eT(sum))+'</td></tr></table>'+paras(S.heNote);
+      midTxt=S.heText.replace(/^~/gm,"")+"\n\n"+tx.join("\n")+"\nGesamt: "+eT(sum)+"\n\n"+S.heNote.replace(/^~/gm,"");
+    }else if(eh){
+      var ds=curs.map(function(e){return e.date}).sort(),auto=dsh(ds[0])+" – "+dsh(ds[ds.length-1]);
+      $("iZ").placeholder=auto;
+      var am=amtE(sum),z=$("iZ").value||auto;
+      var raw=S.ehText.split("\n");
+      mid='<div class="sh-x">'+raw.map(function(l){var sm=l.charAt(0)==="~";if(sm)l=l.slice(1);return l?'<p'+(sm?' class="sh-s"':'')+'>'+esc(l).split("{zeitraum}").join(esc(z)).split("{betrag}").join("<b>"+esc(am)+"</b>")+'</p>':'<div class="sh-sp"></div>'}).join("")+'</div>';
+      midTxt=raw.map(function(l){l=l.replace(/^~/,"");return l.split("{zeitraum}").join(z).split("{betrag}").join(am)}).join("\n");
+    }else{
+      var shown=rows.slice();while(shown.length<6)shown.push(["",null]);
+      mid='<table class="sh-t">'+shown.map(function(r){return '<tr><td>'+(r[0]?esc(r[0]):'&nbsp;')+'</td><td>'+(r[1]===null?'&nbsp;':amt(r[1]))+'</td></tr>'}).join("")+'<tr class="sh-g"><td>Gesamt</td><td>'+amt(sum)+'</td></tr></table>';
+      midTxt=rows.map(function(r){return r[0]+": "+amt(r[1])}).join("\n")+"\nGesamt: "+amt(sum);
+    }
+    $("sheet").innerHTML='<div class="sh-h"><b>'+esc(S.name)+'</b><div>'+esc(l1)+'<br>'+esc(l2)+'</div></div>'
+      +'<div class="sh-to">'+br(to.join("\n"))+'</div>'
+      +'<div class="sh-d">'+esc(city)+', '+d+'</div>'
+      +'<div class="sh-n">Rechnung Nr. '+esc(no)+'</div>'
+      +mid
+      +(nt.trim()?'<div class="sh-note">'+br(nt)+'</div>':'')
+      +'<div class="sh-ft">'+br(ft.join("\n"))+'</div>';
+    $("sheet").className=sp?"eh":"";
+    txt=[[S.name,l1,l2].filter(Boolean).join("\n"),to.join("\n"),city+", "+d,"Rechnung Nr. "+no,midTxt,nt.trim(),ft.join("\n")].filter(Boolean).join("\n\n");
+  }
+  function bump(){var n=parseInt(($("iNo").value.split("/")[1]||""),10);if(n>S.last){S.last=n;saveS()}}
+  ["iName","iAdr","iNo","iDate","iAnf","iMat","iMatT","iZ","iKm","iTg","iVp","iDesc"].forEach(function(id){$(id).addEventListener("input",sheet)});
+  $("list").addEventListener("click",function(ev){var b=ev.target.closest(".iv");if(!b)return;
+    cur=data.filter(function(e){return e.id===b.dataset.id})[0];if(!cur)return;curs=[cur];
+    $("iDate").value=today();$("iNo").value=today().slice(0,4)+"/"+(S.last+1);
+    $("iDesc").value="";$("iAnf").value="";$("iMat").value="";$("iMatT").value="";$("iZ").value="";$("iKm").value="";$("iTg").value="";$("iVp").value="";
+    $("iAnf").parentNode.parentNode.style.display=cur.type==="Erste Hilfe"?"none":"";$("iMw").style.display=cur.type==="Erste Hilfe"?"none":"";$("iZw").style.display=cur.type==="Erste Hilfe"?"":"none";$("iDw").style.display=cur.type==="Erste Hilfe"?"none":"";$("iCw").style.display=cur.type==="Erste Hilfe"?"none":"";$("iFix").style.display=cur.type==="Erste Hilfe"?"":"none";$("ov").hidden=false;sheet()});
+  function setType(t){type=t;Array.prototype.forEach.call($("types").children,function(x){x.classList.toggle("on",x.dataset.t===t)})}
+  $("list").addEventListener("click",function(ev){var b=ev.target.closest(".ed");if(!b)return;
+    var e=data.filter(function(x){return x.id===b.dataset.id})[0];if(!e)return;
+    editId=e.id;setType(e.type);$("date").value=e.date;$("from").value=e.from;$("to").value=e.to;$("note").value=e.note||"";
+    $("save").textContent="Änderung speichern";$("cancel").hidden=false;window.scrollTo(0,0)});
+  $("cancel").addEventListener("click",function(){editId=null;$("save").textContent="Eintragen";$("cancel").hidden=true;$("note").value=""});
+  var CK="az-customers",C=[],cEdit=null;
+  try{C=JSON.parse(localStorage.getItem(CK)||"[]")}catch(e){C=[]}
+  function saveC(){try{localStorage.setItem(CK,JSON.stringify(C))}catch(e){}}
+  function cRender(){
+    $("cList").innerHTML=C.length?C.map(function(c){return '<div class="entry"><div><b>'+esc(c.name)+'</b><div class="note">'+br(c.adr)+'</div></div><div style="text-align:right"><button class="cEd iv" data-id="'+c.id+'">✏️ Bearbeiten</button> <button class="cDel x" data-id="'+c.id+'">🗑️ Löschen</button></div></div>'}).join(""):'<div class="note">Noch keine Kunden gespeichert.</div>';
+    $("iSel").innerHTML='<option value="">– Kunde wählen –</option>'+C.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+'</option>'}).join("");
+  }
+  function cReset(){cEdit=null;$("cSave").textContent="Kunde speichern";$("cCancel").hidden=true;$("cName").value="";$("cAdr").value=""}
+  $("cSave").addEventListener("click",function(){var n=$("cName").value.trim();if(!n)return;
+    var c={id:cEdit||Date.now()+"",name:n,adr:$("cAdr").value.trim()};
+    if(cEdit)C=C.map(function(x){return x.id===cEdit?c:x});else C.push(c);
+    cReset();saveC();cRender()});
+  $("cCancel").addEventListener("click",cReset);
+  $("cList").addEventListener("click",function(ev){
+    var d=ev.target.closest(".cDel");
+    if(d){if(d.dataset.arm!=="1"){d.dataset.arm="1";d.textContent="Wirklich löschen?";setTimeout(function(){if(d.isConnected){d.dataset.arm="";d.textContent="🗑️ Löschen"}},3000);return}
+      C=C.filter(function(x){return x.id!==d.dataset.id});saveC();cRender();return}
+    var b=ev.target.closest(".cEd");if(!b)return;
+    var c=C.filter(function(x){return x.id===b.dataset.id})[0];if(!c)return;
+    cEdit=c.id;$("cName").value=c.name;$("cAdr").value=c.adr;$("cSave").textContent="Änderung speichern";$("cCancel").hidden=false});
+  $("iSel").addEventListener("change",function(){var c=C.filter(function(x){return x.id===$("iSel").value})[0];if(!c)return;$("iName").value=c.name;$("iAdr").value=c.adr;sheet()});
+  $("iSaveC").addEventListener("click",function(){var n=$("iName").value.trim();if(!n)return;
+    var ex=C.filter(function(x){return x.name===n})[0];
+    if(ex)ex.adr=$("iAdr").value.trim();else C.push({id:Date.now()+"",name:n,adr:$("iAdr").value.trim()});
+    saveC();cRender();$("iSaveC").textContent="Gespeichert ✓";setTimeout(function(){$("iSaveC").textContent="Empfänger als Kunde speichern"},1500)});
+  cRender();
+  function uniq(a){var r=[];a.forEach(function(e){if(r.indexOf(e.type)<0)r.push(e.type)});return r}
+  function updSel(){var n=Object.keys(selIds).length;$("selInv").textContent="🧾 Rechnung aus Auswahl"+(n?" ("+n+")":"")}
+  $("list").addEventListener("change",function(ev){var c=ev.target.closest(".sel");if(!c)return;if(c.checked)selIds[c.dataset.id]=1;else delete selIds[c.dataset.id];updSel()});
+  $("selInv").addEventListener("click",function(){
+    var sel=data.filter(function(e){return selIds[e.id]});
+    if(!sel.length){$("selInv").textContent="Erst Einträge ankreuzen";setTimeout(updSel,2000);return}
+    var eh=sel.filter(function(e){return e.type==="Erste Hilfe"}).length;
+    if(eh&&eh<sel.length){$("selInv").textContent="Erste Hilfe bitte separat abrechnen";setTimeout(updSel,2500);return}
+    var he=sel.filter(function(e){return e.type==="Heißausbildung"}).length;
+    if(he&&he<sel.length){$("selInv").textContent="Heißausbildung bitte separat abrechnen";setTimeout(updSel,2500);return}
+    cur=sel[0];curs=sel;
+    $("iDate").value=today();$("iNo").value=today().slice(0,4)+"/"+(S.last+1);
+    $("iDesc").value="";$("iAnf").value="";$("iMat").value="";$("iMatT").value="";$("iZ").value="";$("iKm").value="";$("iTg").value="";$("iVp").value="";
+    $("iAnf").parentNode.parentNode.style.display=eh?"none":"";$("iMw").style.display=eh?"none":"";$("iZw").style.display=eh?"":"none";$("iDw").style.display=eh?"none":"";$("iCw").style.display=eh?"none":"";$("iFix").style.display=eh?"":"none";$("ov").hidden=false;sheet()});
+  $("ovx").addEventListener("click",function(){$("ov").hidden=true});
+  $("ovp").addEventListener("click",function(){bump();try{window.print()}catch(e){}});
+  $("ovc").addEventListener("click",function(){bump();try{navigator.clipboard.writeText(txt).then(function(){$("ovc").textContent="Kopiert ✓";setTimeout(function(){$("ovc").textContent="Text kopieren"},1500)})}catch(e){}});
+  load();$("date").value=today();$("month").value=today().slice(0,7);render();
+})();
+</script>
+</body>
+</html>
